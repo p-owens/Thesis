@@ -28,7 +28,7 @@ The work that has been undertaken will be split into sections as follows:
 
 \newpage
 \section{Amplifier Characterisation}
-\label{tw:amp_char}
+\label{tw:sec:amp_char}
 
 
 \subsection{Introduction}
@@ -131,7 +131,7 @@ From the figures it can be clearly seen that the output spectrum of the amplifie
 
 \newpage
 \section{Data Generation Experiment}
-\label{tw:data_gen}
+\label{tw:sec:data_gen}
 
 \subsection{Introduction}
 
@@ -164,46 +164,74 @@ The gain of each channel will depend on the channel loading conditions, i.e., wh
 \FloatBarrier
 
 \begin{figure}
-    \centering
-    \caption{yes}
-    \begin{tabular}{c}
+    \caption{Experimental setup in VPI. Figure \ref{fig:tw:top_lvl} shows the top level simulation. Figure \ref{fig:tw:co_sim_galaxy} shows the expanded co-simulation sub-module, referred to as a galaxy.}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \caption{From left to right, the co-simulation galaxy, EDFA amplifier and the optical systems analyser.}
         \includegraphics[width=0.8\textwidth]{images/technical_work/section_2_data generation/ex_setup.png}
-        \label{fig:my_label}\\
+        \label{fig:tw:top_lvl}
+    \end{subfigure}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \caption{Expanded co-simulation galaxy, showing the co-simulation model being used as an output.}
         \includegraphics[width=0.8\textwidth]{images/technical_work/section_2_data generation/co_sim_galaxy.png} 
-        \label{fig:my_label}\\
-    \end{tabular}
+        \label{fig:tw:co_sim_galaxy}
+    \end{subfigure}
+    \label{fig:tw:exp_setup}
 \end{figure}
 
 
-The experiment will generate a random channel loading scenario, a random number of channels, between 2 and 44 inclusive, will be set to “on” i.e., have an input power of 50$\mu$W. The location of each “on” channel will also be randomly decided. 
-Theses n channels will be the inputs to the amplifier, the inputs and outputs from the amplifier will be recorded to create one training sample. Several thousand samples will be generated to be used to train the model. 
+The experimental setup to generate the training data is shown in figure \ref{fig:tw:exp_setup}. The experiment will generate a random channel loading scenario. A random number of channels $n$, between 2 and 44 inclusive, will be turned “on” i.e., have an input power of 50[mu]W. The frequency of each “on” channel will also be randomly decided. The scenario where the input is a single channel will be ignored. As in this case the single channel will not be impacted by the presence of any other channels.
 
-As in the experiment from section [reference prep section], the amplifier model from VPI will be used. However, with the VPI simulator there is no straightforward method to generate a random array of channels that meet the requirements of the experiment. 
-As such the input channels will be generated using MATLAB and will then be read into VPI using the simulators Co-Simulate functionality. 
+The $n$ channels will be inputted to the amplifier. The value of the corresponding $n$ output channels along with the $n$ input channels will be recorded. This process will be repeated several thousand times to generate sufficient data to train the ML model. 
+
+As in the experiment from section \ref{tw:sec:amp_char}, the amplifier model from VPI will be used. However, there is no straightforward method to generate a random array of channels in VPI. As such the array of input channels will be generated using MATLAB and then be read into VPI using the simulators co-simulation function.
+
+As seen in figure \ref{fig:tw:exp_setup} the experimental setup consists of setting the output of the MATLAB co-simulation module as the input to the optical amplifier, and measuring the output of the optical amplifier using the optical systems analyser module. 
 
 
 \subsubsection{MATLAB Channel Generation}
 
-Although the optical channels are being generated in MATLAB in order for them to be read by VPI they must conform to the internal structure that VPI has defined for optical signals. 
-Optical signals in VPI are comprised of noise bins, sampled bands and parameterised signals, all three signal components must be created for a signal to be used in VPI. 
+Though the optical channels are generated in MATLAB, for them to be read by VPI they must conform to the internal structure that VPI has defined for optical signals. 
+
+Optical signals in VPI are comprised of noise bins, sampled bands, and parameterised signals, all three signal components must be created for a signal to be used in VPI. 
 For the purposes of this experiment, we are only interested in the parameterised signals.
 
 The VPI optical signal components are represented by cell arrays in MATLAB, a cell array for each component will be created, but only the parameterised signal cell array will contain the values of our channels.  
 
-Each time a training sample is generated the MATLAB script is run. Before a sample is generated the random number generator used in the generating the channels is re-initialised using the current time. This ensure that the channels generated are indeed random and independent from each other. 
+The MATLAB code used to generate the channels can be found in appendix [ref].
 
-
-\subsection{Verification}	
-A verification script was created in order to ensure that the channel generation scrip was functioning as expected.
-
-The verification script records the output of the channel generation scrip over a set number of runs and plots the results. The results of performing 1000 runs can be seen in figure [ref/figure. (describe the figures and explain what they mean)
+The MATLAB script is run each time a training sample is generated. Before a sample is generated the random number generator used to select the channels is re-initialised using the current time. This ensure that the channels generated are indeed random and independent from each other. 
 
 
 
-The experimental setup to generate the training data is shown in figure [reference figure]
-The MATLAB co-simulation is run inside a sub galaxy as shown in 
-(describe the experimental setup from VPI here)
+\subsubsection{Verification}
 
-The simulation was run in batches of 500 runs, an example of the output from one of these sets of runs can be seen in figure [reference figure]
+A verification script was created to ensure that the channel generation scrip was functioning as expected.
+
+The verification script records the output of the channel generator over a number of runs and plots the results. The results of performing 5000 runs can be seen in figures \ref{fig:tw:data_gen:rel_ch} and \ref{fig:tw:data_gen:rel_num_ch}. 
+
+As can be seen from the figures there is no bias towards any particular channel nor towards a particular number of channels. The variation in the relative occurrence of the channels and the number of channels generated can be attributed to the number of dummy runs that were produced and is expected to decrease were the number of runs increased. Ensuring that there are no biases in the underlying data used to train the model is critical. Further discussion on this are can be found in section [ref]. The script used to verify the channel generator can be found in appendix [ref].
+\begin{figure}
+    \centering
+    \caption{Results of 5000 dummy runs of the channel generator.}
+    \label{fig:tw:dummy_runs}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+    \caption{Plot of the relative occurrence of each channel.}
+    \includegraphics[width=\textwidth]{images/technical_work/section_2_data generation/rel_occur_ch.png}
+    \label{fig:tw:data_gen:rel_ch}    
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \caption{Plot of the relative occurrence of the number of channels generated, note the y-axis i scaled by $1e^{-3}$.}
+        \includegraphics[width=\textwidth]{images/technical_work/section_2_data generation/rel_occur_num_ch.png}
+        \label{fig:tw:data_gen:rel_num_ch}
+    \end{subfigure}
+\end{figure}
+
+
+\FloatBarrier
+\subsection{Results}
 
 
