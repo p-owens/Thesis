@@ -32,7 +32,7 @@ The work that has been undertaken will be split into sections as follows:
 
 
 \subsection{Introduction}
-This section will detail the characterisation experiments that were carried out on the amplifier used throughout this project. In place of a physical EDFA amplifier a virtual model from a photonics simulation software package was used. A detailed description of the software package used will also be provided in the following section.	
+This section will detail the characterisation experiment that was carried out on the amplifier used throughout this project. In place of a physical EDFA amplifier a virtual model from a photonics simulation software package was used. A detailed description of the software package used will also be provided in the following section.	
 
 The need to carry out an experimental characterisation of the EDFA arises from the necessity to verify the accuracy of the virtual model to one of a physical amplifier. This process will determine characteristics of the amplifier, such as the gain profile, the impact of noise on the amplifier output and the amplifier fidelity, in terms of the presence of saturation effects and interaction effects between the various input channels. The results of this characterisation will be used to inform the design of later experiments, and the development of the machine learning model itself.
 
@@ -81,20 +81,47 @@ The three signal sources are combined using an ideal multiplexer and inputted to
 The output powers of the lower and upper sources were varied from a value of 1$\mu$W to 1W in 5 steps. Only optical signal from either source was active during a given step.
 
 \subsection{Results}
-The results of the experiment can be seen in figure [ref]
-[insert figure here]
+
+
+The results of the experiment can be seen in figures \ref{fig:tw_amp_char_lc} and \ref{fig:tw_amp_char_uc} , where the output spectrum as a result of varying the lower source is shown in figure and as a result of varying the upper source is shown in figure. 
+
+From the figures it can be clearly seen that the output spectrum of the amplifier is non-flat. By examining the change in the output spectrum as the two sources are varied the interaction effects between channels can be seen. The higher frequency channel has a much greater impact on the overall output spectrum than the lower frequency channel of the same power. The gain of the entire output spectrum is suppressed as the power of the high frequency channel is increased. Whereas increasing the power of the lower frequency channel results in a marginal increase in the output spectrum. 
+
+
+
+\renewcommand{\arraystretch}{0.5}
+\begin{figure}
+    \floatpagestyle{empty}
+    \centering
+    \caption{Shows the effect the power of the lower channel has on the gain spectrum.}
+    \begin{tabular}{c}
+        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/1.png} \\
+        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/3.png} \\
+        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/5.png} \\
+        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/7.png} \\
+        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/9.png} \\ 
+    \end{tabular}
+    \label{fig:tw_amp_char_lc}
+\end{figure}
 
 \begin{figure}
+    \floatpagestyle{empty}
+    \caption{Shows the effect the power of the upper channel has on the gain spectrum.}
     \centering
-    \includegraphics[width=0.5\linewidth]{images/technical_work/section_1_charc}
-    \caption{Caption}
-    \label{fig:my_label}
+    \begin{tabular}{c}
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/2.png} \\
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/4.png} \\
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/6.png} \\
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/8.png} \\
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/10.png} \\ 
+    \end{tabular}
+    \label{fig:tw_amp_char_uc}
 \end{figure}
 
 
-As can be seen from figure [refence] the output spectrum of the amplifier is non-flat. The shape of the output spectrum depends on not only the location but also the power of the additional channel. The additional channel has a significant impact on the other channels once its power was greater than the channels closest to it. The additional channel also had a much greater impact on the entire gain spectrum when it was located at a higher frequency and the higher frequency channels are impacted to a much greater extent than the lower frequency channels.
 
-[need to add conclusion section here]
+\FloatBarrier
+\subsection{Conclusion}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -108,23 +135,28 @@ As can be seen from figure [refence] the output spectrum of the amplifier is non
 
 \subsection{Introduction}
 
-In this section  the experiment used to generate training data for the ML model will be discussed. The training data must emulate optical signal traffic from real world scenarios in order for the ML model to be applicable to actual amplifiers used in optical networks.
+In this section  the experiment used to generate training data for the ML model will be discussed. The training data must emulate optical signal traffic from real world scenarios to provide the model with sufficient data to be able to predict the outputs of actual amplifiers used in optical networks.
 
-The ITU define a frequency grid for DWDM applications centred at 193.1 THz and using channel spacings up to 100GHz. This frequency range from 1530nm (195.943THz) to, 1565 (191.561THz), known as the C band in fibre optic communications, is the primary wavelength used for long distance optical communication. The lowest losses optical fibre losses occur in this frequency band. The experiment must generate data that conforms to the standard ITU DWDM frequency grid. 
+The ITU define a frequency grid for DWDM applications centred at 193.1 THz and using channel spacings up to 100GHz. This frequency range from 1530nm (195.943THz) to, 1565 (191.561THz), known as the C band in fibre optic communications. The C band is the primary wavelength used for long distance optical communication, as it is in this frequency band that fibre optic cables have lowest losses. 
 
-Initially bounds for the experiment must be set, these include the number of channels to be used, the channel spacing, the channel power and the variation of channel power.
-The channel spacing was set at 100GHz in order to fit with the ITU grid. A common channel plan found in many DWDM systems is to use 44 channels spaced at 100GHz or 88 channels spaced at 50GHz. In this case 44 channels will be used.  Finally, the channel power and power variation between the channels must be set. The channel power was set at 50$\mu$W, a typical input power for EDFAs in use in optical communication systems. The channel power is constant for all input channels. Using a constant channel power restricts the (the model) somewhat, as a result the total input power to the amplifier will also be constant and there will not be any variation between channel powers. 
+The channel spacing was set at 100GHz to conform to the standard ITU DWDM frequency grid. A common channel plan found in many DWDM systems is to use 44 channels spaced at 100GHz or 88 channels spaced at 50GHz. In this case 44 channels will be used.  
 
-Applying this restriction will mean that the training data can be varied in the following ways
+The channel power was set at 50$\mu$W, as this is reflective of a typical channel input power for an EDFA in an optical communication network. The channel power was not varied between channels.
 
+Maintaining a constant channel power has several implications for the model that will be trained on this data. As a result of applying this restriction the model will not account for cases where the power of all channels is varied form 50[mu]W, or where the channel powers are not uniform. 
+
+This restriction will reduce variability in the training data and enable the model to learn the effects of different channel loading conditions more easily. The impact that channels have on each other will be solely due to their relative frequency, as opposed to their relative power, and relative frequency.
+
+
+Each training data sample will consist of two arrays, both 44 units long. The array of input powers randomly generated by the VPI simulator and, the corresponding array of output powers measured from the output of the amplifier. The training samples can vary in the following ways:
 \begin{itemize}
-    \item The input power of each of the 44 channels will either be 0W or 50$\mu$W\\
+    \item The input power of each of the 44 channels will either be 0W or 50$\mu$W. The number and location of the nonzero channels will be randomly set.
     
-    \item The output power of each of the corresponding channels will either be 0W, if the input power was 0W, or a non-zero value of power determined by the channel specific gain.\\
+    \item The output powers will either be, 0$\mu$W if the input power of that channel was 0$\mu$W, or will be some non-zero value of power determined by the channel specific gain.
 \end{itemize}
 
+The gain of each channel will depend on the channel loading conditions, i.e., which channels are on and the relation between a given channel and all other “on” channels.
 
-The gain of each channel will depend on the channel loading conditions, i.e., which channels are on or off for that particular sample.
 
 
 
@@ -138,7 +170,7 @@ As in the experiment from section [reference prep section], the amplifier model 
 As such the input channels will be generated using MATLAB and will then be read into VPI using the simulators Co-Simulate functionality. 
 
 
-\subsection{MATLAB Channel Generation}
+\subsubsection{MATLAB Channel Generation}
 
 Although the optical channels are being generated in MATLAB in order for them to be read by VPI they must conform to the internal structure that VPI has defined for optical signals. 
 Optical signals in VPI are comprised of noise bins, sampled bands and parameterised signals, all three signal components must be created for a signal to be used in VPI. 
