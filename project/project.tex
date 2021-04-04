@@ -216,13 +216,13 @@ As can be seen from the figures there is no bias towards any particular channel 
     \centering
     \caption{Results of 5000 dummy runs of the channel generator.}
     \label{fig:tw:dummy_runs}
-    \begin{subfigure}{0.5\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \centering
     \caption{Plot of the relative occurrence of each channel.}
     \includegraphics[width=\textwidth]{images/technical_work/section_2_data generation/rel_occur_ch.png}
     \label{fig:tw:data_gen:rel_ch}    
     \end{subfigure}
-    \begin{subfigure}{0.5\textwidth}
+    \begin{subfigure}{0.49\textwidth}
         \centering
         \caption{Plot of the relative occurrence of the number of channels generated, note the y-axis i scaled by $1e^{-3}$.}
         \includegraphics[width=\textwidth]{images/technical_work/section_2_data generation/rel_occur_num_ch.png}
@@ -232,6 +232,47 @@ As can be seen from the figures there is no bias towards any particular channel 
 
 
 \FloatBarrier
+
 \subsection{Results}
+
+A sample of the outputs from the runs of the simulator can be seen in figure \ref{fig:tw:vpi_samp_op}. In figure \ref{fig:tw:vpi_50_op} the variation in the outputs of the channels can be seen. The variation is a result of the impact that different channel loading conditions have on the amplification of each channel.
+
+\begin{figure}[!h]
+    \centering
+    \caption{Sample outputs from the VPI simulator.}
+    \label{fig:tw:vpi_samp_op}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \caption{One sample run from the simulation.}
+        \includegraphics[width=\textwidth]{images/technical_work/section_2_data generation/sample_output_1.pdf}
+        
+        \label{fig:tw:vpi_1_op}
+    \end{subfigure}
+    
+    \begin{subfigure}{\textwidth}
+        \centering
+        \caption{A sample of 50 runs from the simulation superimposed on-top of each other. The different runs can be determined by the colouring of the stem in the stem plot.}
+        \includegraphics[width=\textwidth]{images/technical_work/section_2_data generation/sample_output_50.pdf}
+        
+        \label{fig:tw:vpi_50_op}
+    \end{subfigure}
+\end{figure}
+\FloatBarrier
+\subsection{Conclusion}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beginning of New Section Here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\newpage
+\section{Machine Learning Model}
+\label{tw:ml_model}
+this is gonna be fun!
+
+
+
 
 
