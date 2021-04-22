@@ -302,6 +302,7 @@ A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
     \centering
     \caption{Example training sample}
     \begin{tabular}{l l l l l l l l }
+        \textbf{Channel} & 0 & 1 & 2 & ... & 41 & 42 & 43 \\
         \hline
         \textbf{Frequency} & 191.6 & 191.7 & 191.8 & ... & 195.6 & 195.7 & 195.8 \\
         \hline
@@ -322,10 +323,10 @@ A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
 % Need to insert graph of the model
 % Or maybe add in a table like the model summary from keras
 
-A ML model with 44 input features, 4 hidden layers with 1056, 1056, 1056 and 528 neurons respectively and an output layer of 44 units was created. The activation functions of the layers alternated between rectified linear and linear activation.  Dropout of 0.45 was applied after each of the hidden layers.
+A ML model with 44 input features, 4 hidden layers with 1056, 1056, 1056 and 528 neurons respectively and an output layer of 44 units was created. The activation functions of the layers alternated between rectified linear (ReLu) and linear activation.  Dropout of 0.45 was applied after each of the hidden layers.
 
 
-%Can make table look nicer, add a layer number col and havve the words on top of eachother on the first row
+%Can make table look nicer, add a layer number col and have the words on top of each other on the first row
 \begin{table}[!h]
     \centering
     \caption{Combined Model Structure}
@@ -356,14 +357,37 @@ A ML model with 44 input features, 4 hidden layers with 1056, 1056, 1056 and 528
     \label{tab:combined_model_struct}
 \end{table}
 
-The model was trained using mini-batch gradient decent and the Nadam optimiser to minimise the mean squared error. A batch size of 512 and a learning rate of $4e^{-5}$ was used.
+The model was trained using mini-batch gradient decent and the Nadam optimiser to minimise the mean squared error (MSE). A batch size of 512 and a learning rate of $4e^{-5}$ was used.
 
 
 \subsubsection{Results}
-The results of training the model for 950 epochs can be seen in figure \ref{}
+\FloatBarrier
+
+%Need to evaluate what the R-squared metric will mean
+
+The results of training the model for 950 epochs can be seen in figure \ref{fig:ml_model:nn_training}. After 950 epochs the training MSE loss was = 0.2898 and the validation MSE loss was = 0.0556. When evaluating the model on the test set the test loss MSE was = 0.0487. 
+
+The test loss is the mean squared error between the the predicted input vector and the actual "true" output vector.
+
+
+\begin{figure}[!h]
+    \centering
+    \caption{Neural Network Training Log for 950 Epochs}
+    \includegraphics[width = 0.8\textwidth]{project/img/ml_model/combined_model_training_log.png}
+    \label{fig:ml_model:nn_training}
+\end{figure}
 
 
 
+
+
+
+
+
+
+
+
+\FloatBarrier
 \subsection{Discrete Model}
 
 The neural network (NN) is comprised of seven fully connected layers; one input layer, five hidden layers and one output layer. The input layer consists of 44 neurons, and the hidden layers consists of 360, 180, 90 and 45 neurons respectively, the output layer is a single neuron. There dropout is applied after each of the hidden layers, with a value of $0.45$ for all but the last layer, which has a value of $0.2$. The network was trained using mini-batch gradient decent and the Nadam optimiser with a learning rate of $1 \times 10^{-4}$. The loss function was the mean squared error. The structure of the network can be seen in figure [ref].
