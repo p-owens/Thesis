@@ -307,10 +307,11 @@ A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
 \begin{table}[!h] 
     \centering
     \caption{Example training sample}
-    \begin{tabular}{l l l l l l l l }
+    
+    \begin{tabular}[t]{l l l l l l l l }
         \textbf{Channel} & 0 & 1 & 2 & ... & 41 & 42 & 43 \\
         \hline
-        \textbf{Frequency} & 191.6 & 191.7 & 191.8 & ... & 195.6 & 195.7 & 195.8 \\
+        \textbf{Frequency (THz)} & 191.6 & 191.7 & 191.8 & ... & 195.6 & 195.7 & 195.8 \\
         \hline
         \textbf{Input} & 1 & 0 & 1 & ... & 0 & 0 &	1 \\
         \hline
@@ -321,7 +322,7 @@ A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
 \end{table}
 
 \FloatBarrier
-\subsection{Combined Model}
+\subsection{Combined Model} \label{sub:sec:comb_mod}
 
 
 \subsubsection{Development}
@@ -336,28 +337,28 @@ A ML model with 44 input features, 4 hidden layers with 1056, 1056, 1056 and 528
 \begin{table}[!h]
     \centering
     \caption{Combined Model Structure}
-    \begin{tabular}{l l l l l }
-        \textbf{Layer Type} & \textbf{Shape} & \textbf{Parameters} & \textbf{Activation} & \textbf{Dropout Rate} \\
+    \begin{tabular}{l l l l l l }
+        \textbf{Layer} & \textbf{Type} & \textbf{Shape} & \textbf{Parameters} & \textbf{Activation} & \textbf{Dropout Rate} \\
         \hline
-        Input & 44 & - & - & - \\
+        0 & Input & 44 & - & - & - \\
         \hline
-        Dense & 1,056 & 47520 & ReLu  & - \\ 
+        \multirow[t]{2}{*}{1} & Dense & 1,056 & 47,520 & ReLu  & - \\ \cline{2-6}
+        
+        & Dropout & 1,056 & - & - & 45\% \\
         \hline
-        Dropout & 1,056 & - & - & 45\% \\
+        \multirow[t]{2}{*}{2} & Dense & 1,056 & 1,116,192 & Linear  & - \\  \cline{2-6}
+        
+        & Dropout & 1,056 & - & - & 45\% \\
         \hline
-        Dense & 1,056 & 1,116,192 & Linear  & - \\ 
+        \multirow[t]{2}{*}{3} &  Dense & 1,056 & 1,116,192 & ReLu  & - \\ \cline{2-6}
+        
+        & Dropout & 1,056 & - & - & 45\% \\
         \hline
-        Dropout & 1,056 & - & - & 45\% \\
+        \multirow[t]{2}{*}{4} & Dense & 528 & 558,096 & Linear  & - \\ \cline{2-6}
+        
+        & Dropout & 528 & - & - & 45\% \\
         \hline
-        Dense & 1,056 & 1,116,192 & ReLu  & - \\ 
-        \hline
-        Dropout & 1,056 & - & - & 45\% \\
-        \hline
-        Dense & 528 & 558,096 & Linear  & - \\ 
-        \hline
-        Dropout & 528 & - & - & 45\% \\
-        \hline
-        Output & 44 & 23,276 & ReLu & - \\
+        5 &Output & 44 & 23,276 & ReLu & - \\
         \hline
     \end{tabular}
     \label{tab:combined_model_struct}
@@ -400,7 +401,7 @@ The loss metric should be robust to training samples with $0\mu W$ values while 
 
 
 \FloatBarrier
-\subsection{Discrete Model}
+\subsection{Discrete Model} \label{sub:sec:disc_mod}
 
 \subsubsection{Development}
 
@@ -450,11 +451,22 @@ Each network was trained using mini-batch gradient decent and the Nadam optimise
 \FloatBarrier
 \subsubsection{Results}
 
+The training log for the NN in channel 42 is shown in figure \ref{fig:ml_model:disc_train_log}, this graph is representative of the training logs for each of the NNs. The training and validation mean percentage error (MPE) for each NN after training for 750 epochs can be seen in figure \ref{fig:ml_model:disc_train_val}. Here we can see that the validation MPE is significantly lower for each of the channels here than for the continuous model discussed in section \ref{sub:sec:comb_mod}.
+
+
+
+\begin{figure}
+    \centering
+    \caption{Training log for channel 42, training and validation MSE shown in blue and orange respectively.}
+    \includegraphics[width=\textwidth]{project/img/ml_model/singel_training_log.png}
+    \label{fig:ml_model:disc_train_log}
+\end{figure}
+
 % Include a picture of a training graph for the model
 
 \begin{figure}
     \centering
-    \caption{Percentage Error of each Neural Network after training for 750 epochs.}
+    \caption{MPE of each Neural Network after training for 750 epochs, training is show in orange and validation is shown in blue.}
     \includegraphics[width=\textwidth]{project/img/ml_model/comb_t_v_pct_err.pdf}
     \label{fig:ml_model:disc_train_val}
 \end{figure}
