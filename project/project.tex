@@ -7,7 +7,7 @@
 \section{Introduction} 
 \label{tw:intro}
 
-This chapter will discuss the experiments that have been carried out and the process that has been followed leading to the development of a machine learning model capable of predicting the output characteristic of an EDFA. 
+This chapter will discuss the experiments that have been carried out and the process that has been followed leading to the development of a machine learning model capable of predicting the output power spectrum of an EDFA. 
 The work that has been undertaken will be split into sections as follows:
 \begin{itemize}
     \item Amplifier characterisation, a detailing of the experiments carried out in order to characterise the amplifier model that has been used throughout this thesis.
@@ -95,11 +95,10 @@ From the figures it can be clearly seen that the output spectrum of the amplifie
     \centering
     \caption{Shows the effect the power of the lower channel has on the gain spectrum.}
     \begin{tabular}{c}
-        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/1.png} \\
-        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/3.png} \\
-        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/5.png} \\
-        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/7.png} \\
-        \includegraphics[width=0.8\linewidth]{images/technical_work/section_1_characterisation/steps/9.png} \\ 
+        \includegraphics[width=0.85\textwidth]{images/technical_work/section_1_characterisation/figures/1.png} \\
+        \includegraphics[width=0.85\textwidth]{images/technical_work/section_1_characterisation/figures/2.png} \\
+        \includegraphics[width=0.85\textwidth]{images/technical_work/section_1_characterisation/figures/3.png} \\
+        \includegraphics[width=0.85\textwidth]{images/technical_work/section_1_characterisation/figures/4.png} \\
     \end{tabular}
     \label{fig:tw_amp_char_lc}
 \end{figure}
@@ -109,11 +108,10 @@ From the figures it can be clearly seen that the output spectrum of the amplifie
     \caption{Shows the effect the power of the upper channel has on the gain spectrum.}
     \centering
     \begin{tabular}{c}
-        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/2.png} \\
-        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/4.png} \\
-        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/6.png} \\
-        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/8.png} \\
-        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/steps/10.png} \\ 
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/figures/6.png} \\
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/figures/7.png} \\
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/figures/8.png} \\
+        \includegraphics[width=0.85\linewidth]{images/technical_work/section_1_characterisation/figures/9.png} \\
     \end{tabular}
     \label{fig:tw_amp_char_uc}
 \end{figure}
@@ -268,11 +266,105 @@ A sample of the outputs from the runs of the simulator can be seen in figure \re
 
 
 \newpage
-\section{Machine Learning Model}
-\label{tw:ml_model}
-this is gonna be fun!
+\section{Machine Learning Model}\label{tw:ml_model}
+
+
+\subsection{Introduction}
+In this section the development of the machine learning model will be discussed. The aim of the model is to predict the output power of each channel based on input power. To this end a fully connected neural network will be used. The model was developed using the Tensorflow and Keras Python libraries.
+
+Experiments were carried out to evaluate the performance of 2 different neural networks (NNs) on this regression problem.
+
+Initially a NN with a combined network architecture was developed. This is where the input to the network will be a vector 44 units long, each unit corresponding to the input power of a channel. The output of the network will again be a vector with the 44 output powers of each channel.
+
+Subsequently a model with a discrete network architecture was developed. In this case 44 different neural networks were trained, each network taking the same input vector of the 44 channel powers but instead will be responsible for predicting the output power of a single channel. As the gain each channel receives will be slightly different, the weights of the network will reflect this begin slightly different in each of the 44 networks.
+
+
+This chapter will be broken down into the following sections:
+\begin{enumerate}
+    \item Data
+    \item Combined Network
+    \item Discrete Network
+    \item Optimiser
+    \item Loss function
+\end{enumerate}
+
+\subsection{Data}
+\FloatBarrier
+Training data was generated following the process discussed in section \ref{tw:sec:data_gen}. Using this method 12,000 data samples were generated, a training validation split of 80:20 was used. A different testing data set of 400 samples was generated for each channel. 
+
+The input power could either be $0\mu W$ or $50 \mu W$, this was represented using binary values or 0 or 1. It was found that specifying the input as binary values lead to faster model convergence.
+A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
+
+% Need to add in graphs showing the faster convergence of the models using binary values as the inputs
+
+\renewcommand{\arraystretch}{1.15}
+\begin{table}[h!] 
+    \centering
+    \caption{Example training sample}
+    \begin{tabular}{l l l l l l l l }
+        \hline
+        \textbf{Frequency} & 191.6 & 191.7 & 191.8 & ... & 195.6 & 195.7 & 195.8 \\
+        \hline
+        \textbf{Input} & 1 & 0 & 1 & ... & 0 & 0 &	1 \\
+        \hline
+        \textbf{Output Power ($\mu W$)} & 1.370 & 0 & 1.656 & ... & 0 &	0 &	19.664 \\
+        \hline
+    \end{tabular}
+    \label{tab:ex_data_sample}
+\end{table}
 
 
 
+\subsection{Combined Model}
 
 
+\subsubsection{Development}
+\FloatBarrier
+% Need to insert graph of the model
+% Or maybe add in a table like the model summary from keras
+
+A ML model with 44 input features, 4 hidden layers with 1056, 1056, 1056 and 528 neurons respectively and an output layer of 44 units was created. The activation functions of the layers alternated between rectified linear and linear activation.  Dropout of 0.45 was applied after each of the hidden layers.
+
+
+%Can make table look nicer, add a layer number col and havve the words on top of eachother on the first row
+\begin{table}[!h]
+    \centering
+    \caption{Combined Model Structure}
+    \begin{tabular}{l l l l l }
+        \textbf{Layer Type} & \textbf{Shape} & \textbf{Parameters} & \textbf{Activation} & \textbf{Dropout Rate} \\
+        \hline
+        Input & 44 & - & - & - \\
+        \hline
+        Dense & 1,056 & 47520 & ReLu  & - \\ 
+        \hline
+        Dropout & 1056 & - & - & 45\% \\
+        \hline
+        Dense & 1,056 & 1,116,192 & Linear  & - \\ 
+        \hline
+        Dropout & 1,056 & - & - & 45\% \\
+        \hline
+        Dense & 1,056 & 1,116,192 & ReLu  & - \\ 
+        \hline
+        Dropout & 1,056 & - & - & 45\% \\
+        \hline
+        Dense & 528 & 558,096 & Linear  & - \\ 
+        \hline
+        Dropout & 528 & - & - & 45\% \\
+        \hline
+        Output & 44 & 23,276 & ReLu & - \\
+        \hline
+    \end{tabular}
+    \label{tab:combined_model_struct}
+\end{table}
+
+The model was trained using mini-batch gradient decent and the Nadam optimiser to minimise the mean squared error. A batch size of 512 and a learning rate of $4e^{-5}$ was used.
+
+
+\subsubsection{Results}
+The results of training the model for 950 epochs can be seen in figure \ref{}
+
+
+
+\subsection{Discrete Model}
+
+The neural network (NN) is comprised of seven fully connected layers; one input layer, five hidden layers and one output layer. The input layer consists of 44 neurons, and the hidden layers consists of 360, 180, 90 and 45 neurons respectively, the output layer is a single neuron. There dropout is applied after each of the hidden layers, with a value of $0.45$ for all but the last layer, which has a value of $0.2$. The network was trained using mini-batch gradient decent and the Nadam optimiser with a learning rate of $1 \times 10^{-4}$. The loss function was the mean squared error. The structure of the network can be seen in figure [ref].
