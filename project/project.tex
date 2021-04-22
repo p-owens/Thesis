@@ -290,6 +290,12 @@ This chapter will be broken down into the following sections:
 
 \subsection{Data}
 \FloatBarrier
+% Need to include a section about data cleaning 
+
+% Need to include a section about using uW instead of dBM 
+% Be good to include a graph of the average output power to show the variation
+
+
 Training data was generated following the process discussed in section \ref{tw:sec:data_gen}. Using this method 12,000 data samples were generated, a training validation split of 80:20 was used. A different testing data set of 400 samples was generated for each channel. 
 
 The input power could either be $0\mu W$ or $50 \mu W$, this was represented using binary values or 0 or 1. It was found that specifying the input as binary values lead to faster model convergence.
@@ -298,7 +304,7 @@ A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
 % Need to add in graphs showing the faster convergence of the models using binary values as the inputs
 
 \renewcommand{\arraystretch}{1.15}
-\begin{table}[h!] 
+\begin{table}[!h] 
     \centering
     \caption{Example training sample}
     \begin{tabular}{l l l l l l l l }
@@ -314,12 +320,12 @@ A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
     \label{tab:ex_data_sample}
 \end{table}
 
-
+\FloatBarrier
 \subsection{Combined Model}
 
 
 \subsubsection{Development}
-\FloatBarrier
+
 % Need to insert graph of the model
 % Or maybe add in a table like the model summary from keras
 
@@ -337,7 +343,7 @@ A ML model with 44 input features, 4 hidden layers with 1056, 1056, 1056 and 528
         \hline
         Dense & 1,056 & 47520 & ReLu  & - \\ 
         \hline
-        Dropout & 1056 & - & - & 45\% \\
+        Dropout & 1,056 & - & - & 45\% \\
         \hline
         Dense & 1,056 & 1,116,192 & Linear  & - \\ 
         \hline
@@ -367,7 +373,7 @@ The model was trained using mini-batch gradient decent and the Nadam optimiser t
 
 The results of training the model for 950 epochs can be seen in figure \ref{fig:ml_model:nn_training}. After 950 epochs the training MSE loss was = 0.2898 and the validation MSE loss was = 0.0556. When evaluating the model on the test set the test loss MSE was = 0.0487. 
 
-The test loss is the mean squared error between the the predicted input vector and the actual "true" output vector.
+
 
 
 \begin{figure}[!h]
@@ -378,16 +384,68 @@ The test loss is the mean squared error between the the predicted input vector a
 \end{figure}
 
 
+The test loss value is calculated as the MSE between the predicted and actual output vectors. Which is equivalent taking the average of the MSE over all output channels. Due to the disparity between the relative powers of the lower and higher frequency channels the MSE metric under-represents the error on the lower frequency channels. This can be seen in figure \ref{fig:ml_model:pct_err_freq} where the percentage error is graphed against the channel frequency.
 
+A solution to this could be to use the percentage error as the loss metric, however this option is also problematic. As the true output value can be $0\mu W$ in this case any small error in absolute terms between the predicted and true values will result in an extremely large percentage error.
 
+\begin{figure}[!h]
+    \centering
+    \caption{Percentage Error varying from Channel 1 (191.9 Thz) to Channel 43 (195.7 THz)}
+    \includegraphics[width = \textwidth]{project/img/ml_model/pct_err_freq.pdf}
+    \label{fig:ml_model:pct_err_freq}
+\end{figure}
 
-
-
-
+The loss metric should be robust to training samples with $0\mu W$ values while also allowing for the uniform minimising of error over the entire frequency spectrum. 
 
 
 
 \FloatBarrier
 \subsection{Discrete Model}
 
-The neural network (NN) is comprised of seven fully connected layers; one input layer, five hidden layers and one output layer. The input layer consists of 44 neurons, and the hidden layers consists of 360, 180, 90 and 45 neurons respectively, the output layer is a single neuron. There dropout is applied after each of the hidden layers, with a value of $0.45$ for all but the last layer, which has a value of $0.2$. The network was trained using mini-batch gradient decent and the Nadam optimiser with a learning rate of $1 \times 10^{-4}$. The loss function was the mean squared error. The structure of the network can be seen in figure [ref].
+\subsubsection{Development}
+
+This model is comprised of 44 distinct NNs where each network will predict the output power of a single channel. The MSE will be used as the loss function for each network, as it is robust to errors in training samples where the true value is $0\mu W$ and due the output being a single neuron the relative difference between channel powers will no longer be an issue.
+
+Each NN is comprised of seven fully connected layers; one input layer with, five hidden layers and one output layer. The input layer consists of 44 neurons, and the hidden layers consists of 360, 180, 90 and 45 neurons respectively, the output layer is a single neuron. Dropout of 45\% is applied after each of the hidden layers, except for the final layer where the value is 20\%.
+
+
+%Can make table look nicer, add a layer number col and have the words on top of each other on the first row
+\begin{table}[!h]
+    \centering
+    \caption{Discrete Model Structure}
+    \begin{tabular}{l l l l l }
+        \textbf{Layer Type} & \textbf{Shape} & \textbf{Parameters} & \textbf{Activation} & \textbf{Dropout Rate} \\
+        \hline
+        Input & 44 & - & - & - \\
+        \hline
+        Dense & 360 & 16,200 & ReLu  & - \\ 
+        \hline
+        Dropout & 360 & - & - & 45\% \\
+        \hline
+        Dense & 180 & 64,980 & Linear  & - \\ 
+        \hline
+        Dropout & 180 & - & - & 45\% \\
+        \hline
+        Dense & 180 & 32,580 & ReLu  & - \\ 
+        \hline
+        Dropout & 180 & - & - & 45\% \\
+        \hline
+        Dense & 90 & 16,290 & Linear  & - \\ 
+        \hline
+        Dropout & 90 & - & - & 45\% \\
+        \hline
+        Dense & 45 & 4,095 & Linear  & - \\ 
+        \hline
+        Dropout & 45 & - & - & 20\% \\
+        \hline
+        Output & 1 & 46 & ReLu & - \\
+        \hline
+    \end{tabular}
+    \label{tab:discrete_model_struct}
+\end{table}
+
+Each network was trained using mini-batch gradient decent and the Nadam optimiser, a batch size of 512 and a learning rate of $1e^{-4}$ was used.
+
+
+\FloatBarrier
+\subsubsection{Results}
