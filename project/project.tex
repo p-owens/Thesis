@@ -413,32 +413,32 @@ Each NN is comprised of seven fully connected layers; one input layer with, five
 \begin{table}[!h]
     \centering
     \caption{Discrete Model Structure}
-    \begin{tabular}{l l l l l }
-        \textbf{Layer Type} & \textbf{Shape} & \textbf{Parameters} & \textbf{Activation} & \textbf{Dropout Rate} \\
+    \begin{tabular}[b]{l l l l l l }
+        \textbf{Layer} & \textbf{Type} & \textbf{Shape} & \textbf{Parameters} & \textbf{Activation} & \textbf{Dropout Rate} \\
         \hline
-        Input & 44 & - & - & - \\
+        0 & Input & 44 & - & - & - \\
         \hline
-        Dense & 360 & 16,200 & ReLu  & - \\ 
+        \multirow[t]{2}{*}{1} & Dense & 360 & 16,200 & ReLu  & - \\ \cline{2-6}
+        
+                & Dropout & 360 & - & - & 45\% \\
         \hline
-        Dropout & 360 & - & - & 45\% \\
+        \multirow[t]{2}{*}{2} & Dense & 180 & 64,980 & Linear  & - \\ \cline{2-6}
+        
+        & Dropout & 180 & - & - & 45\% \\
         \hline
-        Dense & 180 & 64,980 & Linear  & - \\ 
+        \multirow[t]{2}{*}{3} & Dense & 180 & 32,580 & ReLu  & - \\ \cline{2-6}
+        
+        & Dropout & 180 & - & - & 45\% \\
         \hline
-        Dropout & 180 & - & - & 45\% \\
+        \multirow[t]{2}{*}{4} & Dense & 90 & 16,290 & Linear  & - \\ \cline{2-6}
+        
+        & Dropout & 90 & - & - & 45\% \\
         \hline
-        Dense & 180 & 32,580 & ReLu  & - \\ 
+        \multirow[t]{2}{*}{5} & Dense & 45 & 4,095 & ReLu  & - \\ \cline{2-6}
+        
+        & Dropout & 45 & - & - & 20\% \\
         \hline
-        Dropout & 180 & - & - & 45\% \\
-        \hline
-        Dense & 90 & 16,290 & Linear  & - \\ 
-        \hline
-        Dropout & 90 & - & - & 45\% \\
-        \hline
-        Dense & 45 & 4,095 & Linear  & - \\ 
-        \hline
-        Dropout & 45 & - & - & 20\% \\
-        \hline
-        Output & 1 & 46 & ReLu & - \\
+        6 & Output & 1 & 46 & Linear & - \\
         \hline
     \end{tabular}
     \label{tab:discrete_model_struct}
@@ -449,3 +449,12 @@ Each network was trained using mini-batch gradient decent and the Nadam optimise
 
 \FloatBarrier
 \subsubsection{Results}
+
+% Include a picture of a training graph for the model
+
+\begin{figure}
+    \centering
+    \caption{Percentage Error of each Neural Network after training for 750 epochs.}
+    \includegraphics[width=\textwidth]{project/img/ml_model/comb_t_v_pct_err.pdf}
+    \label{fig:ml_model:disc_train_val}
+\end{figure}
