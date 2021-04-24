@@ -288,7 +288,7 @@ This chapter will be broken down into the following sections:
     \item Loss function
 \end{enumerate}
 
-\subsection{Data}
+\subsection{Data}\label{subsec:ml_model:data}
 \FloatBarrier
 % Need to include a section about data cleaning 
 
@@ -296,9 +296,12 @@ This chapter will be broken down into the following sections:
 % Be good to include a graph of the average output power to show the variation
 
 
-Training data was generated following the process discussed in section \ref{tw:sec:data_gen}. Using this method 12,000 data samples were generated, a training validation split of 80:20 was used. A different testing data set of 400 samples was generated for each channel. 
+Training data was generated following the process discussed in section \ref{tw:sec:data_gen}. Using this method 12,000 data samples were generated. The training data must first be formatted before it can be used to train the NN. %should I be saying noise or ASE spontaneous noise here
+All channel powers were converted from $dBm$ to $\mu W$ and any noise signals must also be removed from the output spectrum. 
 
-The input power could either be $0\mu W$ or $50 \mu W$, this was represented using binary values or 0 or 1. It was found that specifying the input as binary values lead to faster model convergence.
+A training validation split of 80:20 was used. A different testing data set of 400 samples was generated for each channel. 
+
+The input power can have a value of either $0\mu W$ or $50 \mu W$, these powers were converted to binary values, or 0 or 1 when using the data to train the NN. It was found that specifying the input as binary values lead to faster model convergence.
 A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
 
 % Need to add in graphs showing the faster convergence of the models using binary values as the inputs
@@ -323,7 +326,7 @@ A typical training sample can be seen in figure \ref{tab:ex_data_sample}.
 
 \FloatBarrier
 \subsection{Combined Model} \label{sub:sec:comb_mod}
-
+% need to mention where this model can be found, like in what notebook or whatever
 
 \subsubsection{Development}
 
@@ -402,10 +405,19 @@ The loss metric should be robust to training samples with $0\mu W$ values while 
 
 \FloatBarrier
 \subsection{Discrete Model} \label{sub:sec:disc_mod}
-
-\subsubsection{Development}
+% need to mention where this model can be found, like in what notebook or whatever
 
 This model is comprised of 44 distinct NNs where each network will predict the output power of a single channel. The MSE will be used as the loss function for each network, as it is robust to errors in training samples where the true value is $0\mu W$ and due the output being a single neuron the relative difference between channel powers will no longer be an issue.
+
+
+\subsubsection{Data}
+The same training data set from section \ref{subsec:ml_model:data} was used. The NNs output layer is no longer a vector of 44 output channel but a single channel power; the training data was modified to reflect this change. Each training sample now consists of an input vector 44 units long and a single output power value. 
+
+Training samples where the NN's output channel power is $0\mu W$ are filtered out of the data-set, except for the first 500 samples. The model aims to predict the interaction effects between the channels; these effects only occur when the channel is active (i.e. has a nonzero output power). Therefore several thousand additional training samples where the channel's output power is $0\mu W$ will not benefit the training process. The first 500 samples were not filtered to ensure there will be some training samples where the output power is $0\mu W$.
+
+
+
+\subsubsection{Development}
 
 Each NN is comprised of seven fully connected layers; one input layer with, five hidden layers and one output layer. The input layer consists of 44 neurons, and the hidden layers consists of 360, 180, 90 and 45 neurons respectively, the output layer is a single neuron. Dropout of 45\% is applied after each of the hidden layers, except for the final layer where the value is 20\%.
 
@@ -439,7 +451,7 @@ Each NN is comprised of seven fully connected layers; one input layer with, five
         
         & Dropout & 45 & - & - & 20\% \\
         \hline
-        6 & Output & 1 & 46 & Linear & - \\
+        6 & Output & 1 & 46 & ReLu & - \\
         \hline
     \end{tabular}
     \label{tab:discrete_model_struct}
@@ -451,7 +463,7 @@ Each network was trained using mini-batch gradient decent and the Nadam optimise
 \FloatBarrier
 \subsubsection{Results}
 
-The training log for the NN in channel 42 is shown in figure \ref{fig:ml_model:disc_train_log}, this graph is representative of the training logs for each of the NNs. The training and validation mean percentage error (MPE) for each NN after training for 750 epochs can be seen in figure \ref{fig:ml_model:disc_train_val}. Here we can see that the validation MPE is significantly lower for each of the channels here than for the continuous model discussed in section \ref{sub:sec:comb_mod}.
+A representative training log is shown in figure \ref{fig:ml_model:disc_train_log}, this graph is representative of the training logs for each of the NNs. The training and validation mean percentage error (MPE) for each NN after training for 750 epochs can be seen in figure \ref{fig:ml_model:disc_train_val}. The validation MPE is significantly lower for each of the channels here than for the continuous model discussed in section \ref{sub:sec:comb_mod}.
 
 
 
@@ -470,3 +482,17 @@ The training log for the NN in channel 42 is shown in figure \ref{fig:ml_model:d
     \includegraphics[width=\textwidth]{project/img/ml_model/comb_t_v_pct_err.pdf}
     \label{fig:ml_model:disc_train_val}
 \end{figure}
+
+
+\subsection{Model Configuration}
+
+\subsubsection{Optimiser}
+The Nadam optimiser was used to train the model. The choice of optimiser was made based on a series of experiments, training representative sample models.  
+
+\subsubsection{Model Metrics}
+
+
+\subsubsection{Activation function}
+
+\FloatBarrier
+\subsection{Conclusion}

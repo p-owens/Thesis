@@ -21,15 +21,15 @@
 %   It will be used for the title page and for the embedded PDF information
 %----------------------------------------------------------------------------------------
 
-\newcommand{\thesistitle}{Title of Work} % Your thesis title, this is used in the title and abstract
-\newcommand{\degree}{MAI (Computer Engineering)} % Your degree name, this is used in the title page and abstract
+\newcommand{\thesistitle}{Prediction of an Optical Amplifier Output Channel Power Excursion Using Machine Learning} % Your thesis title, this is used in the title and abstract
+\newcommand{\degree}{MAI (Electronic and Computer Engineering)} % Your degree name, this is used in the title page and abstract
 \newcommand{\typeofthesis}{dissertation} % dissertation, Final Year Project, report, etc.
 \newcommand{\authorname}{Patrick Owens} % Your name, this is used in the title page and PDF stuff
 %% Do not put your Student ID in the document, as TCD will not publish
 %% documents that contain both your name and your Student ID.
 
 \newcommand{\keywords}{this, that, more} % Keywords for your thesis
-\newcommand{\school}{\href{http://www.scss.tcd.ie}{School of Computer Science and Statistics}} % Your school's name and URL, this is used in the title page
+\newcommand{\school}{\href{https://www.tcd.ie/eleceng/}{Department of Electronic and Electrical Engineering}} % Your school's name and URL, this is used in the title page
 
 %% Comment out the next line if you don't want a department to appear
 %\newcommand{\department}{\href{http://researchgroup.university.com}{Department Name}} % Your research group's name and URL, this is used in the title page
@@ -81,6 +81,9 @@
 % for multirow tables
 \usepackage{adjustbox}
 \usepackage{multirow}
+
+%multiline commnets 
+\usepackage{verbatim}
 
 
 
@@ -154,6 +157,7 @@ You should acknowledge any help that you have received (for example from technic
 \listoftables
 \newpage
 \section*{\Huge{Nomenclature}}
+\begin{comment}
 \begin{tabular}{lp{9cm}l}
 A&Area of the wing&$m^{2}$\\
 B\\
@@ -174,7 +178,7 @@ If a parameter has a typical unit that is used throughout your report, then it s
 If you have a very mathematical report, then you may wish to divide the nomenclature list into functions and variables, and then sub- and super-scripts.
 
 Note that Roman mathematical symbols are typically in a serif font in italics.
-
+\end{comment}
 \mainmatter
 \input{introduction/introduction.tex}
 \input{background/background.tex}
