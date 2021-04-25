@@ -377,15 +377,24 @@ The model was trained using mini-batch gradient decent and the Nadam optimiser t
 
 The results of training the model for 950 epochs can be seen in figure \ref{fig:ml_model:nn_training}. After 950 epochs the training MSE loss was = 0.2898 and the validation MSE loss was = 0.0556. When evaluating the model on the test set the test loss MSE was = 0.0487. 
 
-
-
-
-\begin{figure}[!h]
-    \centering
-    \caption{Neural Network Training Log for 950 Epochs}
-    \includegraphics[width = 0.8\textwidth]{project/img/ml_model/combined_model_training_log.png}
-    \label{fig:ml_model:nn_training}
+\begin{figure}
+     \centering
+     \caption{Neural Network Training Log}
+     \begin{subfigure}[b]{\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{project/img/ml_model/combined/combined_training_log.pdf}
+     \end{subfigure}
+     \begin{subfigure}[b]{\textwidth}
+         \centering
+         \caption{Epochs 100 to 950.}
+         \includegraphics[width=\textwidth]{project/img/ml_model/combined/combined_training_log_inset.png}
+         
+     \end{subfigure}
+        \label{fig:ml_model:nn_training}
 \end{figure}
+
+
+
 
 
 The test loss value is calculated as the MSE between the predicted and actual output vectors. Which is equivalent taking the average of the MSE over all output channels. Due to the disparity between the relative powers of the lower and higher frequency channels the MSE metric under-represents the error on the lower frequency channels. This can be seen in figure \ref{fig:ml_model:pct_err_freq} where the percentage error is graphed against the channel frequency.
@@ -395,7 +404,7 @@ A solution to this could be to use the percentage error as the loss metric, howe
 \begin{figure}[!h]
     \centering
     \caption{Test Set percentage Error varying from Channel 1 (191.9 Thz) to Channel 43 (195.7 THz)}
-    \includegraphics[width = \textwidth]{project/img/ml_model/pct_err_freq.pdf}
+    \includegraphics[width = \textwidth]{project/img/ml_model/combined/pct_err_freq.pdf}
     \label{fig:ml_model:pct_err_freq}
 \end{figure}
 
@@ -472,42 +481,23 @@ A representative training log is shown in figure \ref{fig:ml_model:disc_train_lo
      \begin{subfigure}[b]{\textwidth}
          \centering
          \caption{Full log.}
-         \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Log.pdf}
+         \includegraphics[width=\textwidth]{project/img/ml_model/discrete/Channel 19 Training Log.pdf}
      \end{subfigure}
      \vspace{-4em}
      \begin{subfigure}[b]{\textwidth}
          \centering
          \caption{Epochs 100 to 750.}
-         \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Loginset.pdf}
+         \includegraphics[width=\textwidth]{project/img/ml_model/discrete/Channel 19 Training Loginset.pdf}
      \end{subfigure}
         \label{fig:ml_model:disc_train_log}
 \end{figure}
 
-\begin{comment}
-
-
-\begin{figure}
-    \centering
-    \caption{}
-    \begin{subfigure}
-        \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Log.pdf}
-        \caption{Training log for channel 42, training and validation MSE shown in blue and orange respectively.}
-        \label{fig:ml_model:disc_train_log}    
-    \end{subfigure}
-    \begin{subfigure}
-        \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Loginset.pdf}
-        \caption{Training log for channel 42, training and validation MSE shown in blue and orange respectively.}
-        \label{fig:ml_model:disc_train_log}
-    \end{subfigure}
-    \label{fig:ml_model:disc_train_log}    
-\end{figure}
-\end{comment}
 % Include a picture of a training graph for the model
 
 \begin{figure}
     \centering
     \caption{MPE of each Neural Network after training for 750 epochs, training is show in orange and validation is shown in blue.}
-    \includegraphics[width=\textwidth]{project/img/ml_model/comb_t_v_pct_err.pdf}
+    \includegraphics[width=\textwidth]{project/img/ml_model/discrete/percent_error.pdf}
     \label{fig:ml_model:disc_train_val}
 \end{figure}
 
@@ -520,7 +510,7 @@ The Nadam optimiser was used to train the model. The choice of optimiser was mad
 \begin{figure}
     \centering
     \caption{Convergence of Nadam optimiser v Stochastic Gradient Decent, for channel 19}
-    \includegraphics[width=\textwidth]{project/img/ml_model/SGD v Nadam, Ch 19 Training Log.pdf}
+    \includegraphics[width=\textwidth]{project/img/ml_model/discrete/SGD v Nadam, Ch 19 Training Log.pdf}
     \label{fig:ml_model:sgd_nadam}
 \end{figure}
 
@@ -530,7 +520,7 @@ The Nadam optimiser was used to train the model. The choice of optimiser was mad
 \begin{figure}
     \centering
     \caption{Comparison of Mean Squared Error v Mean Absolute Percentage Error loss functions.}
-    \includegraphics[width=\textwidth]{project/img/ml_model/mse_mpe.png}
+    \includegraphics[width=\textwidth]{project/img/ml_model/discrete/mse_mpe.png}
     \label{fig:ml_model:mse_mpe}
 \end{figure}
 
