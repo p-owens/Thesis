@@ -394,7 +394,7 @@ A solution to this could be to use the percentage error as the loss metric, howe
 
 \begin{figure}[!h]
     \centering
-    \caption{Percentage Error varying from Channel 1 (191.9 Thz) to Channel 43 (195.7 THz)}
+    \caption{Test Set percentage Error varying from Channel 1 (191.9 Thz) to Channel 43 (195.7 THz)}
     \includegraphics[width = \textwidth]{project/img/ml_model/pct_err_freq.pdf}
     \label{fig:ml_model:pct_err_freq}
 \end{figure}
@@ -419,7 +419,7 @@ Training samples where the NN's output channel power is $0\mu W$ are filtered ou
 
 \subsubsection{Development}
 
-Each NN is comprised of seven fully connected layers; one input layer with, five hidden layers and one output layer. The input layer consists of 44 neurons, and the hidden layers consists of 360, 180, 90 and 45 neurons respectively, the output layer is a single neuron. Dropout of 45\% is applied after each of the hidden layers, except for the final layer where the value is 20\%.
+Each NN is comprised of seven fully connected layers; one input layer with, five hidden layers and one output layer. The input layer consists of 44 neurons, the hidden layers consists of 360, 180, 90 and 45 neurons respectively, and the output layer is a single neuron. Dropout of 45\% is applied after each of the hidden layers, except for the final layer where the value is 20\%.
 
 
 %Can make table look nicer, add a layer number col and have the words on top of each other on the first row
@@ -466,14 +466,42 @@ Each network was trained using mini-batch gradient decent and the Nadam optimise
 A representative training log is shown in figure \ref{fig:ml_model:disc_train_log}, this graph is representative of the training logs for each of the NNs. The training and validation mean percentage error (MPE) for each NN after training for 750 epochs can be seen in figure \ref{fig:ml_model:disc_train_val}. The validation MPE is significantly lower for each of the channels here than for the continuous model discussed in section \ref{sub:sec:comb_mod}.
 
 
+\begin{figure}
+     \centering
+     \caption{Training log for channel 19, showing training and validation loss.}
+     \begin{subfigure}[b]{\textwidth}
+         \centering
+         \caption{Full log.}
+         \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Log.pdf}
+     \end{subfigure}
+     \vspace{-4em}
+     \begin{subfigure}[b]{\textwidth}
+         \centering
+         \caption{Epochs 100 to 750.}
+         \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Loginset.pdf}
+     \end{subfigure}
+        \label{fig:ml_model:disc_train_log}
+\end{figure}
+
+\begin{comment}
+
 
 \begin{figure}
     \centering
-    \caption{Training log for channel 42, training and validation MSE shown in blue and orange respectively.}
-    \includegraphics[width=\textwidth]{project/img/ml_model/singel_training_log.png}
-    \label{fig:ml_model:disc_train_log}
+    \caption{}
+    \begin{subfigure}
+        \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Log.pdf}
+        \caption{Training log for channel 42, training and validation MSE shown in blue and orange respectively.}
+        \label{fig:ml_model:disc_train_log}    
+    \end{subfigure}
+    \begin{subfigure}
+        \includegraphics[width=\textwidth]{project/img/ml_model/Channel 19 Training Loginset.pdf}
+        \caption{Training log for channel 42, training and validation MSE shown in blue and orange respectively.}
+        \label{fig:ml_model:disc_train_log}
+    \end{subfigure}
+    \label{fig:ml_model:disc_train_log}    
 \end{figure}
-
+\end{comment}
 % Include a picture of a training graph for the model
 
 \begin{figure}
@@ -483,16 +511,31 @@ A representative training log is shown in figure \ref{fig:ml_model:disc_train_lo
     \label{fig:ml_model:disc_train_val}
 \end{figure}
 
-
+\FloatBarrier
 \subsection{Model Configuration}
 
+\FloatBarrier
 \subsubsection{Optimiser}
 The Nadam optimiser was used to train the model. The choice of optimiser was made based on a series of experiments, training representative sample models.  
-
-\subsubsection{Model Metrics}
-
-
-\subsubsection{Activation function}
+\begin{figure}
+    \centering
+    \caption{Convergence of Nadam optimiser v Stochastic Gradient Decent, for channel 19}
+    \includegraphics[width=\textwidth]{project/img/ml_model/SGD v Nadam, Ch 19 Training Log.pdf}
+    \label{fig:ml_model:sgd_nadam}
+\end{figure}
 
 \FloatBarrier
+\subsubsection{Loss Function}
+\FloatBarrier
+\begin{figure}
+    \centering
+    \caption{Comparison of Mean Squared Error v Mean Absolute Percentage Error loss functions.}
+    \includegraphics[width=\textwidth]{project/img/ml_model/mse_mpe.png}
+    \label{fig:ml_model:mse_mpe}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Activation function}
+
+
 \subsection{Conclusion}
