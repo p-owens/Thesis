@@ -116,9 +116,6 @@ From the figures it can be clearly seen that the output spectrum of the amplifie
     \label{fig:tw_amp_char_uc}
 \end{figure}
 
-
-
-\FloatBarrier
 \subsection{Conclusion}
 
 
@@ -127,7 +124,7 @@ From the figures it can be clearly seen that the output spectrum of the amplifie
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\newpage
+\FloatBarrier
 \section{Data Generation Experiment}
 \label{tw:sec:data_gen}
 
@@ -274,9 +271,9 @@ In this section the development of the machine learning model will be discussed.
 
 Experiments were carried out to evaluate the performance of 2 different neural networks (NNs) on this regression problem.
 
-Initially a NN with a combined network architecture was developed. This is where the input to the network will be a vector 44 units long, each unit corresponding to the input power of a channel. The output of the network will again be a vector with the 44 output powers of each channel.
+Initially a NN with a combined network architecture was implemented. This is where the input to the network will be a vector 44 units long, each unit corresponding to the input power of a channel. The output of the network will again be a vector with the 44 output powers of each channel.
 
-Subsequently a model with a discrete network architecture was developed. In this case 44 different neural networks were trained, each network taking the same input vector of the 44 channel powers but instead will be responsible for predicting the output power of a single channel. As the gain each channel receives will be slightly different, the weights of the network will reflect this begin slightly different in each of the 44 networks.
+Subsequently a model with a discrete network architecture was implemented. In this case 44 different neural networks were trained, each network taking the same input vector of the 44 channel powers but instead will predict the output power of a single channel. As the gain each channel receives will be slightly different, the weights of the network will reflect this begin slightly different in each of the 44 networks.
 
 
 This chapter will be broken down into the following sections:
@@ -505,27 +502,59 @@ A representative training log is shown in figure \ref{fig:ml_model:disc_train_lo
 \subsection{Model Configuration}
 
 \FloatBarrier
-\subsubsection{Optimiser}
-The Nadam optimiser was used to train the model. The choice of optimiser was made based on a series of experiments, training representative sample models.  
+\subsubsection{Optimiser} \label{subsec:optimiser}
+
+The Nadam optimiser was used for the gradient decent optimisation of the NN. The choice of optimiser resulted from experimentation, training sample models and measuring the performance of various gradient decent optimisers.
+
+As can be seen in figure \ref{fig:ml_model:sgd_nadam} the Nadam optimiser leads to convergence much earlier during training than with stochastic gradient decent, which has not converged even after 750 training epochs.
+
+
+The Nadam optimiser is a combination of the Nesterov Accelerated Gradient and Adam optimiser. The Adam optimiser is modified to include Nesterov momentum, by replacing the momentum vector of the previous time step $\hat{m}_{t-1}$ with that or the current momentum vector $\hat{m}_t$ when updating the weights, in equation \ref{eq:ml_model:nadam_main}.
+
+As in the Adam equation, the momentum term $\hat{m}_t$ is the exponential weighted average of gradients. The learning rate $\alpha$ is decayed by $\hat{v}_t$, the square of the exponential moving average of previous gradients. $ [\frac{\delta L}{\delta w_t}]$ is the gradient and $\epsilon$ is a small positive constant to avoid division by 0.The optimiser can be tuned using $\alpha$, $\beta_1$ and $\beta_2$ parameters, these correspond to the leaning rate, the decay rate of the gradient and the decay rate of the square of the gradients. 
+%Need to add in a refrence to Nadam paper here
+% Dozat, T. (2016). Incorporating Nesterov Momentum into Adam. ICLR Workshop, (1), 2013–2016. 
+
+
+
+
+
+
+
+%\begin{equation}
+\begin{gather}
+    w_{t+1} = w_t - \big( \frac{\alpha}{\sqrt{\hat{v_t} + \epsilon}} \big) \Bigg( \beta_{1} \hat{m_{t}} + \frac{(1 - \beta_1)}{(1 - \beta^{t}_1)} \bigg[\frac{\delta L}{\delta w_t}\bigg] \Bigg) \label{eq:ml_model:nadam_main} \\ 
+    \hat{m_t} = \frac{1}{1 - \beta^{t}_1} \times \Bigg( \beta_{1} \hat{m}_{t-1} + (1 - \beta_1) \bigg[\frac{\delta L}{\delta w_t}\bigg] \Bigg) \label{eq:ml_model:nadam_momentum} \\
+    \hat{v_t} = \frac{1}{1 - \beta^{t}_2} \times \Bigg( \beta_2 \hat{v}_{t-1} + ( 1- \beta_2) \bigg[\frac{\delta L}{\delta w_t}\bigg]^2 \Bigg) \label{eq:ml_model:decay_lr}
+\end{gather}
+%\end{equation}
+
+
+
 \begin{figure}
     \centering
-    \caption{Convergence of Nadam optimiser v Stochastic Gradient Decent, for channel 19}
+    \caption{Convergence of Nadam optimiser v Stochastic Gradient Decent, training log for channel 19}
     \includegraphics[width=\textwidth]{project/img/ml_model/discrete/SGD v Nadam, Ch 19 Training Log.pdf}
     \label{fig:ml_model:sgd_nadam}
 \end{figure}
 
 \FloatBarrier
-\subsubsection{Loss Function}
+\subsubsection{Loss Function} \label{subsec:loss_func}
 \FloatBarrier
+The choice of loss function impacts the training of the NN. The NNs are being trained to solve a regression problem, as such the Mean Squared Error (MSE) and Mean Absolute Percentage Error (MAPE) are considered for the loss function. The MSE loss and MAPE loss can be seen in the training log in figure \ref{fig:ml_model:mse_mpe}. To note is the relative noisiness of the MAPE and the large range of values that the loss function takes, from $\sim 5e^7\%$ to $0\%$.
+
+MAPE is extremely sensitive to errors when the true value is very small relative to the predicted value and particularly in the case of this problem when the true value is $0\mu W$. The large range over which MAPE varies is a result of errors when the true value of a training sample is $0 \mu W$. The large noise of the MAPE is a scaling of the noise in the MSE plot, scaled as a result of the error being calculated on a relative basis.
+
+This over-sensitivity towards 0 values is an undesirable property of MAPE. The aim of the model is to predict the impact of channel interaction effects on the output of a given channel, these effects are only present when the output of the channel is nonzero. Due to these factors MSE was used as the loss function. 
+
 \begin{figure}
     \centering
-    \caption{Comparison of Mean Squared Error v Mean Absolute Percentage Error loss functions.}
+    \caption{Comparison of Mean Squared Error v Mean Absolute Percentage Error (MAPE) loss functions. Note the second y axis for MAPE, is scaled by $1e^7$.}
     \includegraphics[width=\textwidth]{project/img/ml_model/discrete/mse_mpe.png}
     \label{fig:ml_model:mse_mpe}
 \end{figure}
 
 \FloatBarrier
-\subsubsection{Activation function}
 
 
 \subsection{Conclusion}
