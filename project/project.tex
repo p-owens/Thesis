@@ -9,17 +9,17 @@
 
 This chapter will discuss the experiments that have been carried out and the process that has been followed leading to the development of a machine learning model capable of predicting the output power spectrum of an EDFA. 
 The work that has been undertaken will be split into sections as follows:
-\begin{itemize}
+\begin{enumerate}
     \item Amplifier characterisation, a detailing of the experiments carried out in order to characterise the amplifier model that has been used throughout this thesis.
     
-    \item Data generation will discuss the experiment that has been designed to generate suitable training data for the development of the machine learning model.
+    \item Data generation will discuss the experiment that has been designed to generate suitable training data facilitating the development of the machine learning model.
     
     \item Model Design will outline the development of the baseline machine learning model, the development environment and the design choices made during the development process.
     
-    \item Model Refinement 1 – Sensitivity Analysis, will discuss the analysis of the model from section \ref{model_design}. The aim of this analysis is to determine a strategy for reducing the amount of training data required by the ML model.
+    \item Sensitivity Analysis, will discuss the analysis of the model from section \ref{sec:ml_model}. The aim of this analysis is to determine a strategy for reducing the amount of training data required by the ML model.
     
-    \item Model Refinement 2 – Pruning and Quantization, will discuss the optimisation methods that have been applied to improve the model in terms of memory requirements, training time and design efficiency. 
-\end{itemize}
+    \item Pruning and Quantization, will discuss the optimisation methods that have been applied to improve the model in terms of memory requirements, training time and model complexity. 
+\end{enumerate}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -32,7 +32,7 @@ The work that has been undertaken will be split into sections as follows:
 
 
 \subsection{Introduction}
-This section will detail the characterisation experiment that was carried out on the amplifier used throughout this project. In place of a physical EDFA amplifier a virtual model from a photonics simulation software package was used. A detailed description of the software package used will also be provided in the following section.	
+This section will detail the characterisation experiment carried out on the amplifier used throughout this project. In place of a physical EDFA amplifier a virtual model from a photonics simulation software package was used. A detailed description of the software package used will also be provided in the following section.	
 
 The need to carry out an experimental characterisation of the EDFA arises from the necessity to verify the accuracy of the virtual model to one of a physical amplifier. This process will determine characteristics of the amplifier, such as the gain profile, the impact of noise on the amplifier output and the amplifier fidelity, in terms of the presence of saturation effects and interaction effects between the various input channels. The results of this characterisation will be used to inform the design of later experiments, and the development of the machine learning model itself.
 
@@ -78,12 +78,12 @@ The amplifier input consists of 3 optical signal sources multiplexed together:
 
 The three signal sources are combined using an ideal multiplexer and inputted to the black box amplifier. The output of the amplifier was sent to an optical signal analyser to be graphed.
 
-The output powers of the lower and upper sources were varied from a value of 1$\mu$W to 1W in 5 steps. Only optical signal from either source was active during a given step.
+The output powers of the lower and upper sources were varied from a value of 1$\mu$W to 1W in 5 steps. Only one optical signal from either source was active during a given step.
 
 \subsection{Results}
 
 
-The results of the experiment can be seen in figures \ref{fig:tw_amp_char_lc} and \ref{fig:tw_amp_char_uc} , where the output spectrum as a result of varying the lower source is shown in figure and as a result of varying the upper source is shown in figure. 
+The results of the experiment can be seen in figures \ref{fig:tw_amp_char_lc} and \ref{fig:tw_amp_char_uc} , where the output spectrum as a result of varying the lower source is shown in figure \ref{fig:tw_amp_char_lc} and as a result of varying the upper source is shown in figure \ref{fig:tw_amp_char_uc}. 
 
 From the figures it can be clearly seen that the output spectrum of the amplifier is non-flat. By examining the change in the output spectrum as the two sources are varied the interaction effects between channels can be seen. The higher frequency channel has a much greater impact on the overall output spectrum than the lower frequency channel of the same power. The gain of the entire output spectrum is suppressed as the power of the high frequency channel is increased. Whereas increasing the power of the lower frequency channel results in a marginal increase in the output spectrum. 
 
@@ -117,6 +117,9 @@ From the figures it can be clearly seen that the output spectrum of the amplifie
 \end{figure}
 
 \subsection{Conclusion}
+From the experimental results in figures \ref{fig:tw_amp_char_lc} and \ref{fig:tw_amp_char_uc} it can be deduced that the amplifier does not have a gain flattening filter applied as its output spectrum is non-flat. The amplifier model does not have a saturation point, the gain of the two variable channels did not reduce as their powers increased. The model does account for the interaction effects between channels as evidenced by the alteration of the output spectrum when the power of the variable sources is increased.
+
+This experiments served as a means to characterise the amplifier by studying the impact that one channel on the entire output spectrum. The focus of this thesis is to study and predict the impact that all channels have on a given channel. Predicting the impact on a single channel will be the subject of experiments in subsequent sections, the results from this experiment will be used to inform the design of these experiments.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -132,22 +135,22 @@ From the figures it can be clearly seen that the output spectrum of the amplifie
 
 In this section  the experiment used to generate training data for the ML model will be discussed. The training data must emulate optical signal traffic from real world scenarios to provide the model with sufficient data to be able to predict the outputs of actual amplifiers used in optical networks.
 
-The ITU define a frequency grid for DWDM applications centred at 193.1 THz and using channel spacings up to 100GHz. This frequency range from 1530nm (195.943THz) to, 1565 (191.561THz), known as the C band in fibre optic communications. The C band is the primary wavelength used for long distance optical communication, as it is in this frequency band that fibre optic cables have lowest losses. 
+The ITU define a frequency grid for DWDM applications centred at 193.1THz and using channel spacings up to 100GHz. This frequency range from 1530nm (195.943THz) to, 1565nm (191.561THz), known as the C band in fibre optic communications. The C band is the primary wavelength used for long distance optical communication, as it is in this frequency band that fibre optic cables have lowest losses. 
 
 The channel spacing was set at 100GHz to conform to the standard ITU DWDM frequency grid. A common channel plan found in many DWDM systems is to use 44 channels spaced at 100GHz or 88 channels spaced at 50GHz. In this case 44 channels will be used.  
 
-The channel power was set at 50$\mu$W, as this is reflective of a typical channel input power for an EDFA in an optical communication network. The channel power was not varied between channels.
+The channel power was set at $50\mu W$, as this is reflective of a typical channel input power for an EDFA in an optical communication network. The channel power was not varied between channels.
 
-Maintaining a constant channel power has several implications for the model that will be trained on this data. As a result of applying this restriction the model will not account for cases where the power of all channels is varied form 50[mu]W, or where the channel powers are not uniform. 
+Maintaining a constant channel power has several implications for the model that will be trained on this data. As a result of applying this restriction the model will not account for cases where the power of all channels is varied from $50\mu W$, or where the channel powers are not uniform. 
 
 This restriction will reduce variability in the training data and enable the model to learn the effects of different channel loading conditions more easily. The impact that channels have on each other will be solely due to their relative frequency, as opposed to their relative power, and relative frequency.
 
 
 Each training data sample will consist of two arrays, both 44 units long. The array of input powers randomly generated by the VPI simulator and, the corresponding array of output powers measured from the output of the amplifier. The training samples can vary in the following ways:
 \begin{itemize}
-    \item The input power of each of the 44 channels will either be 0W or 50$\mu$W. The number and location of the nonzero channels will be randomly set.
+    \item The input power of each of the 44 channels will either be 0W or $50\mu W$. The number and location of the nonzero channels will be randomly set.
     
-    \item The output powers will either be, 0$\mu$W if the input power of that channel was 0$\mu$W, or will be some non-zero value of power determined by the channel specific gain.
+    \item The output powers will either be, $0\mu W$ if the input power of that channel was $0\mu W$, or will be some non-zero value of power determined by the channel specific gain.
 \end{itemize}
 
 The gain of each channel will depend on the channel loading conditions, i.e., which channels are on and the relation between a given channel and all other “on” channels.
@@ -158,7 +161,7 @@ The gain of each channel will depend on the channel loading conditions, i.e., wh
 \subsection{Experimental Setup}
 \FloatBarrier
 
-\begin{figure}
+\begin{figure}[h]
     \caption{Experimental setup in VPI. Figure \ref{fig:tw:top_lvl} shows the top level simulation. Figure \ref{fig:tw:co_sim_galaxy} shows the expanded co-simulation sub-module, referred to as a galaxy.}
     \begin{subfigure}{\textwidth}
         \centering
@@ -176,7 +179,7 @@ The gain of each channel will depend on the channel loading conditions, i.e., wh
 \end{figure}
 
 
-The experimental setup to generate the training data is shown in figure \ref{fig:tw:exp_setup}. The experiment will generate a random channel loading scenario. A random number of channels $n$, between 2 and 44 inclusive, will be turned “on” i.e., have an input power of 50[mu]W. The frequency of each “on” channel will also be randomly decided. The scenario where the input is a single channel will be ignored. As in this case the single channel will not be impacted by the presence of any other channels.
+The experimental setup to generate the training data is shown in figure \ref{fig:tw:exp_setup}. The experiment will generate a random channel loading scenario. A random number of channels $n$, between 2 and 44 inclusive, will be turned “on” i.e., have an input power of $50\mu W$. The frequency of each “on” channel will also be randomly decided. The scenario where the input is a single channel will be ignored. As in this case the single channel will not be impacted by the presence of any other channels.
 
 The $n$ channels will be inputted to the amplifier. The value of the corresponding $n$ output channels along with the $n$ input channels will be recorded. This process will be repeated several thousand times to generate sufficient data to train the ML model. 
 
@@ -194,7 +197,7 @@ For the purposes of this experiment, we are only interested in the parameterised
 
 The VPI optical signal components are represented by cell arrays in MATLAB, a cell array for each component will be created, but only the parameterised signal cell array will contain the values of our channels.  
 
-The MATLAB code used to generate the channels can be found in appendix [ref].
+The MATLAB code used to generate the channels can be found in appendix \ref{}.
 
 The MATLAB script is run each time a training sample is generated. Before a sample is generated the random number generator used to select the channels is re-initialised using the current time. This ensure that the channels generated are indeed random and independent from each other. 
 
@@ -206,7 +209,7 @@ A verification script was created to ensure that the channel generation scrip wa
 
 The verification script records the output of the channel generator over a number of runs and plots the results. The results of performing 5000 runs can be seen in figures \ref{fig:tw:data_gen:rel_ch} and \ref{fig:tw:data_gen:rel_num_ch}. 
 
-As can be seen from the figures there is no bias towards any particular channel nor towards a particular number of channels. The variation in the relative occurrence of the channels and the number of channels generated can be attributed to the number of dummy runs that were produced and is expected to decrease were the number of runs increased. Ensuring that there are no biases in the underlying data used to train the model is critical. Further discussion on this are can be found in section [ref]. The script used to verify the channel generator can be found in appendix [ref].
+As can be seen from the figures there is no bias towards any particular channel nor towards a particular number of channels. The variation in the relative occurrence of the channels and the number of channels generated can be attributed to the number of dummy runs that were produced and is expected to decrease were the number of runs increased. Ensuring that there are no biases in the underlying data used to train the model is critical. Further discussion on this are can be found in section \ref{}. The script used to verify the channel generator can be found in appendix \ref{}.
 \begin{figure}
     \centering
     \caption{Results of 5000 dummy runs of the channel generator.}
@@ -255,6 +258,12 @@ A sample of the outputs from the runs of the simulator can be seen in figure \re
 \FloatBarrier
 \subsection{Conclusion}
 
+This section detailed the experiment designed to generated training data facilitating the development of the ML model. The training data was generated using VPI and MATLAB. The data samples are intended to emulate real world optical signal communications, that would be amplified by and EDFA operating in a backhaul network. 
+
+%say like itu grid plan 
+% and like input channel power
+From the results in figure \ref{fig:tw:vpi_50_op} the variance in the output power of each optical channel can be seen. This variability resulting from the interaction effects between optical channels is the phenomena that the ML model in section \ref{sec:ml_model} aims to predict.  
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Beginning of New Section Here
@@ -262,30 +271,28 @@ A sample of the outputs from the runs of the simulator can be seen in figure \re
 
 
 
-\newpage
-\section{Machine Learning Model}\label{tw:ml_model}
+\section{Machine Learning Model}\label{sec:ml_model}
 
 
 \subsection{Introduction}
-In this section the development of the machine learning model will be discussed. The aim of the model is to predict the output power of each channel based on input power. To this end a fully connected neural network will be used. The model was developed using the Tensorflow and Keras Python libraries.
+In this section the development of the machine learning model will be discussed. The aim of the model is to predict the output power spectrum of an EDFA based on the input power spectrum, for a given channel configuration. To this end a fully connected neural network (NN) will be trained using data generated following the procedure outlined in section \ref{tw:sec:data_gen}. The model was developed using the Tensorflow and Keras Python libraries.
 
-Experiments were carried out to evaluate the performance of 2 different neural networks (NNs) on this regression problem.
+2 different model structures were trailed and their performance was compared; 
+\begin{itemize}
+    \item Initially a NN with a combined network structure was implemented. This is where the input to the network will be a vector 44 units long, each unit corresponding to the input power of a channel. The output of the network will again be a vector with the 44 output powers of each channel.
 
-Initially a NN with a combined network architecture was implemented. This is where the input to the network will be a vector 44 units long, each unit corresponding to the input power of a channel. The output of the network will again be a vector with the 44 output powers of each channel.
-
-Subsequently a model with a discrete network architecture was implemented. In this case 44 different neural networks were trained, each network taking the same input vector of the 44 channel powers but instead will predict the output power of a single channel. As the gain each channel receives will be slightly different, the weights of the network will reflect this begin slightly different in each of the 44 networks.
-
+    \item Subsequently a model with a discrete network structure was implemented. In this case 44 different NNs were trained, each network taking the same input vector of the 44 channel powers but instead will predict the output power of a single channel. As the level of amplification varies slightly per channel the weights of the trained network will reflect this being slightly different in each of the 44 networks.
+\end{itemize}    
 
 This chapter will be broken down into the following sections:
 \begin{enumerate}
-    \item Data
+    \item Training Data
     \item Combined Network
     \item Discrete Network
-    \item Optimiser
-    \item Loss function
+    \item Model Configuration
 \end{enumerate}
 
-\subsection{Data}\label{subsec:ml_model:data}
+\subsection{Training Data}\label{subsec:ml_model:data}
 \FloatBarrier
 % Need to include a section about data cleaning 
 
@@ -293,8 +300,8 @@ This chapter will be broken down into the following sections:
 % Be good to include a graph of the average output power to show the variation
 
 
-Training data was generated following the process discussed in section \ref{tw:sec:data_gen}. Using this method 12,000 data samples were generated. The training data must first be formatted before it can be used to train the NN. %should I be saying noise or ASE spontaneous noise here
-All channel powers were converted from $dBm$ to $\mu W$ and any noise signals must also be removed from the output spectrum. 
+12,000 data samples were generated following the process discussed in section \ref{tw:sec:data_gen}. The training data must first be formatted before it can be used to train the NN. %should I be saying noise or ASE spontaneous noise here
+All channel powers were converted from $dBm$ to $\mu W$ and any noise signals were also be removed from the output spectrum. 
 
 A training validation split of 80:20 was used. A different testing data set of 400 samples was generated for each channel. 
 
@@ -420,6 +427,7 @@ This model is comprised of 44 distinct NNs where each network will predict the o
 The same training data set from section \ref{subsec:ml_model:data} was used. The NNs output layer is no longer a vector of 44 output channel but a single channel power; the training data was modified to reflect this change. Each training sample now consists of an input vector 44 units long and a single output power value. 
 
 Training samples where the NN's output channel power is $0\mu W$ are filtered out of the data-set, except for the first 500 samples. The model aims to predict the interaction effects between the channels; these effects only occur when the channel is active (i.e. has a nonzero output power). Therefore several thousand additional training samples where the channel's output power is $0\mu W$ will not benefit the training process. The first 500 samples were not filtered to ensure there will be some training samples where the output power is $0\mu W$.
+%Could add a bit about the average split between the amount of samples where a given channel was on for and when it wasn't 
 
 
 
@@ -493,8 +501,8 @@ A representative training log is shown in figure \ref{fig:ml_model:disc_train_lo
 
 \begin{figure}
     \centering
-    \caption{MPE of each Neural Network after training for 750 epochs, training is show in orange and validation is shown in blue.}
-    \includegraphics[width=\textwidth]{project/img/ml_model/discrete/percent_error.pdf}
+    \caption{MPE of each Neural Network after training for 750 epochs. The standard deviation is the measure of variability.}
+    \includegraphics[width=\textwidth]{project/img/ml_model/discrete/percent_error.png}
     \label{fig:ml_model:disc_train_val}
 \end{figure}
 
@@ -504,14 +512,22 @@ A representative training log is shown in figure \ref{fig:ml_model:disc_train_lo
 \FloatBarrier
 \subsubsection{Optimiser} \label{subsec:optimiser}
 
+\begin{figure}[h]
+    \centering
+    \caption{Convergence of Nadam optimiser v Stochastic Gradient Decent, training log for channel 19}
+    \includegraphics[width=\textwidth]{project/img/ml_model/discrete/SGD v Nadam, Ch 19 Training Log.pdf}
+    \label{fig:ml_model:sgd_nadam}
+\end{figure}
+
+
 The Nadam optimiser was used for the gradient decent optimisation of the NN. The choice of optimiser resulted from experimentation, training sample models and measuring the performance of various gradient decent optimisers.
 
 As can be seen in figure \ref{fig:ml_model:sgd_nadam} the Nadam optimiser leads to convergence much earlier during training than with stochastic gradient decent, which has not converged even after 750 training epochs.
 
 
-The Nadam optimiser is a combination of the Nesterov Accelerated Gradient and Adam optimiser. The Adam optimiser is modified to include Nesterov momentum, by replacing the momentum vector of the previous time step $\hat{m}_{t-1}$ with that or the current momentum vector $\hat{m}_t$ when updating the weights, in equation \ref{eq:ml_model:nadam_main}.
+The Nadam optimiser is a combination of the Nesterov Accelerated Gradient and Adam optimiser. The Adam optimiser is modified to include Nesterov momentum, by replacing the momentum vector of the previous time step $\hat{m}_{t-1}$ with that of the current momentum vector $\hat{m}_t$ when updating the weights, in equation \ref{eq:ml_model:nadam_main}.
 
-As in the Adam equation, the momentum term $\hat{m}_t$ is the exponential weighted average of gradients. The learning rate $\alpha$ is decayed by $\hat{v}_t$, the square of the exponential moving average of previous gradients. $ [\frac{\delta L}{\delta w_t}]$ is the gradient and $\epsilon$ is a small positive constant to avoid division by 0.The optimiser can be tuned using $\alpha$, $\beta_1$ and $\beta_2$ parameters, these correspond to the leaning rate, the decay rate of the gradient and the decay rate of the square of the gradients. 
+As in the Adam equation, the momentum term $\hat{m}_t$ (equation \ref{eq:ml_model:nadam_momentum}) is the exponential weighted average of gradients. The learning rate $\alpha$ is decayed by $\hat{v}_t$ (equation \ref{eq:ml_model:decay_lr}), the square of the exponential moving average of previous gradients. $ [\frac{\delta L}{\delta w_t}]$ is the gradient and $\epsilon$ is a small positive constant to avoid division by 0.The optimiser can be tuned using $\alpha$, $\beta_1$ and $\beta_2$ parameters, these correspond to the leaning rate, the decay rate of the gradient and the decay rate of the square of the gradients. The following values were used to train out 
 %Need to add in a refrence to Nadam paper here
 % Dozat, T. (2016). Incorporating Nesterov Momentum into Adam. ICLR Workshop, (1), 2013–2016. 
 
@@ -531,30 +547,34 @@ As in the Adam equation, the momentum term $\hat{m}_t$ is the exponential weight
 
 
 
-\begin{figure}
-    \centering
-    \caption{Convergence of Nadam optimiser v Stochastic Gradient Decent, training log for channel 19}
-    \includegraphics[width=\textwidth]{project/img/ml_model/discrete/SGD v Nadam, Ch 19 Training Log.pdf}
-    \label{fig:ml_model:sgd_nadam}
-\end{figure}
 
-\FloatBarrier
-\subsubsection{Loss Function} \label{subsec:loss_func}
-\FloatBarrier
-The choice of loss function impacts the training of the NN. The NNs are being trained to solve a regression problem, as such the Mean Squared Error (MSE) and Mean Absolute Percentage Error (MAPE) are considered for the loss function. The MSE loss and MAPE loss can be seen in the training log in figure \ref{fig:ml_model:mse_mpe}. To note is the relative noisiness of the MAPE and the large range of values that the loss function takes, from $\sim 5e^7\%$ to $0\%$.
 
-MAPE is extremely sensitive to errors when the true value is very small relative to the predicted value and particularly in the case of this problem when the true value is $0\mu W$. The large range over which MAPE varies is a result of errors when the true value of a training sample is $0 \mu W$. The large noise of the MAPE is a scaling of the noise in the MSE plot, scaled as a result of the error being calculated on a relative basis.
+\subsubsection{Loss Function} \label{subsec:loss_func} \FloatBarrier
 
-This over-sensitivity towards 0 values is an undesirable property of MAPE. The aim of the model is to predict the impact of channel interaction effects on the output of a given channel, these effects are only present when the output of the channel is nonzero. Due to these factors MSE was used as the loss function. 
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \caption{Comparison of Mean Squared Error v Mean Absolute Percentage Error (MAPE) loss functions. Note the second y axis for MAPE, is scaled by $1e^7$.}
     \includegraphics[width=\textwidth]{project/img/ml_model/discrete/mse_mpe.png}
     \label{fig:ml_model:mse_mpe}
 \end{figure}
 
+The choice of loss function impacts the training of the NN. The NNs are being trained to solve a regression problem, as such the Mean Squared Error (MSE) and Mean Absolute Percentage Error (MAPE) are considered for the loss function. The MSE loss and MAPE loss can be seen in the training log in figure \ref{fig:ml_model:mse_mpe}. To note is the relative noisiness of the MAPE and the large range of values that the loss function takes, from $\sim 5e^7\%$ to $0\%$.
+
+MAPE is extremely sensitive to errors when the true value is very small relative to the predicted value and particularly in the case of this problem when the true value is $0\mu W$. The large range over which MAPE varies is a result of errors when the true value of a training sample is $0 \mu W$. The large noise of the MAPE is a scaling of the noise in the MSE plot, scaled as a result of the error being calculated on a relative basis.
+
+This over-sensitivity towards 0 values is an undesirable property of MAPE. The aim of the model is to predict the impact of channel interaction effects on the output of a given channel, these effects are only present when the output of the channel is nonzero. Due to these factors MSE was used as the loss function. 
+
+
+
 \FloatBarrier
 
 
 \subsection{Conclusion}
+
+This section has provided an overview of the development of a machine learning model brought about through a series of experimental test used to determine the ideal model structure, data representation and loss metrics for the model.
+
+Resulting from these tests is a model consisting of 44 separate NNs, each trained to predict the output of a single optical channel. Each network was comprised of 5 hidden layers using linear and ReLu activation. Training occurred on a data set of 12,000 samples using the Nadam optimiser, with a learning rate of $1e^{-4}$, and mini-batch gradient decent with a batch size of 512. Mean squared error was used as the loss function. The model has an average per channel accuracy of $4.07\%$. 
+
+
+ 
